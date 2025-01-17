@@ -1,0 +1,483 @@
+  const db = require('../config/db');
+  const multer = require('multer');
+  const path = require('path');
+  const fs = require('fs');
+  
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+      cb(null, `${Date.now()}-${file.originalname}`);
+    },
+  });
+  
+  const upload = multer({ storage });
+  
+  
+  
+  async function createDevice(req, res) {
+      try {       
+        const { name, description, brandName, subcategoryName, categoryName, reviews = [], features, prices } = req.body;
+        const images = req.files.images;
+        // Проверяем, что обязательные поля заполнены
+        if (!subcategoryName || !categoryName || !prices || prices.length === 0) {
+          return res.status(400).json({ message: 'Пожалуйста, заполните все обязательные поля' });
+        }
+    
+
+        // Проверяем, существует ли бренд, если нет - добавляем его
+        let brandId;
+        const [brandRows] = await db.pool.query('SELECT id_brand FROM brand WHERE name_brand = ?', [brandName]);
+        if (brandRows.length === 0) {
+          const [insertBrandResult] = await db.pool.query('INSERT INTO brand (name_brand) VALUES (?)', [brandName]);
+          brandId = insertBrandResult.insertId;
+        } else {
+          brandId = brandRows[0].id_brand;
+        }
+    
+        // Проверяем, существует ли категория
+        const [categoryRows] = await db.pool.query('SELECT id_category FROM category WHERE name_category = ?', [categoryName]);
+        if (categoryRows.length === 0) {
+          return res.status(400).json({ message: 'Категория не найдена' });
+        }
+        const categoryId = categoryRows[0].id_category;
+    
+        // Проверяем, существует ли подкатегория, если нет - добавляем ее
+        let subcategoryId;
+        const [subcategoryRows] = await db.pool.query('SELECT id_subcategory FROM subcategory WHERE name_subcategory = ?', [subcategoryName]);
+        if (subcategoryRows.length === 0) {
+          const [insertSubcategoryResult] = await db.pool.query('INSERT INTO subcategory (name_subcategory, id_category) VALUES (?, ?)', [subcategoryName, categoryId]);
+          subcategoryId = insertSubcategoryResult.insertId;
+        } else {
+          subcategoryId = subcategoryRows[0].id_subcategory;
+        }
+    
+        // Добавляем устройство
+        const [insertDeviceResult] = await db.pool.query('INSERT INTO device (name_device, desc_device, id_brand, id_subcategory) VALUES (?, ?, ?, ?)', [name, description, brandId, subcategoryId]);
+        const deviceId = insertDeviceResult.insertId;
+    
+        // Добавляем цены устройства
+        for (const { price, priceName } of prices) {
+          const [insertPriceResult] = await db.pool.query('INSERT INTO price (price, name_price) VALUES (?, ?)', [price, priceName]);
+          const priceId = insertPriceResult.insertId;
+          await db.pool.query('INSERT INTO device_price (id_device, id_price) VALUES (?, ?)', [deviceId, priceId]);
+        }
+    
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     // Обработка загрузки изображений
+    const imageFiles = req.files || [];
+    console.log('Найдено', imageFiles.length, 'изображений для загрузки');
+
+    for (const { images, type } of images) {
+        console.log('Обрабатываем изображение:', images.name);
+      
+        // Проверяем тип изображения
+        const [typeRows] = await db.pool.query('SELECT id_type_images FROM type_images WHERE name_type = ?', [type]);
+        if (typeRows.length === 0) {
+          console.log('Тип изображения не найден, добавляем новый тип:', type);
+          const [insertTypeResult] = await db.pool.query('INSERT INTO type_images (name_type) VALUES (?)', [type]);
+          const typeId = insertTypeResult.insertId;
+          console.log('Новый тип изображения добавлен, id:', typeId);
+        } else {
+          const typeId = typeRows[0].id_type_images;
+          console.log('Тип изображения найден, id:', typeId);
+        }
+      
+        // Сохраняем изображение на диск
+        const imagePath = path.join('uploads', images.name);
+        await fs.promises.writeFile(imagePath, images.data);
+        console.log('Изображение сохранено:', imagePath);
+      
+        // Добавляем изображение в базу данных
+        console.log('Добавляем изображение в базу данных:', imagePath);
+        const [insertImageResult] = await db.pool.query('INSERT INTO images_device (link_images_device, id_type_images) VALUES (?, ?)', [imagePath, typeId]);
+        if (insertImageResult.affectedRows === 0) {
+          console.error('Не удалось добавить изображение в базу данных:', imagePath);
+          return res.status(500).json({ message: 'Не удалось добавить изображение' });
+        }
+        const imageId = insertImageResult.insertId;
+        console.log('Изображение добавлено, id:', imageId);
+      
+        // Связываем изображение с устройством
+        console.log('Связываем изображение с устройством, id устройства:', deviceId);
+        const [insertDeviceImageResult] = await db.pool.query('INSERT INTO device_images_device (id_device, id_images_device) VALUES (?, ?)', [deviceId, imageId]);
+        if (insertDeviceImageResult.affectedRows === 0) {
+          console.error('Не удалось связать изображение с устройством:', imagePath);
+          return res.status(500).json({ message: 'Не удалось связать изображение с устройством' });
+        }
+        console.log('Изображение связано с устройством');
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    // Добавляем отзывы устройства
+    for (const review of reviews) {
+      const [insertReviewResult] = await db.pool.query('INSERT INTO reviews (nickname_reviews, data_reviews, count_stars_reviews, text_reviews) VALUES (?, ?, ?, ?)', [review.nickname, review.data, review.countStars, review.text]);
+      await db.pool.query('INSERT INTO device_reviews (id_device, id_reviews) VALUES (?, ?)', [deviceId, insertReviewResult.insertId]);
+    }
+    
+    // Создаем новые характеристики
+    for (const feature of features) {
+      const [insertFeatureResult] = await db.pool.query('INSERT INTO feature (title_feature, desc_feature) VALUES (?, ?)', [feature.title, feature.description]);
+      const featureId = insertFeatureResult.insertId;
+      await db.pool.query('INSERT INTO device_feature (id_device, id_feature) VALUES (?, ?)', [deviceId, featureId]);
+    }
+    
+    // Возвращаем созданное устройство
+    const [device] = await db.pool.query('SELECT * FROM device WHERE id_device = ?', [deviceId]);
+    return res.status(201).json(device[0]);
+} catch (error) {
+    if (error instanceof multer.MulterError) {
+      console.error('Multer error:', error);
+      return res.status(400).json({ message: 'Ошибка при загрузке файлов' });
+    } else {
+      console.error('Error creating device:', error);
+      return res.status(500).json({ error: 'Ошибка при создании устройства' });
+    }
+  }
+}
+  
+  
+
+
+
+async function updateDevice(req, res) {
+    try {
+        const { id } = req.params;
+        const { name, description, brandName, subcategoryName, categoryName, images, reviews, features } = req.body;
+
+        // Проверяем, существует ли устройство
+        const [deviceRows] = await db.pool.query('SELECT * FROM device WHERE id_device = ?', [id]);
+        if (deviceRows.length === 0) {
+            return res.status(404).json({ message: 'Устройство не найдено' });
+        }
+
+        // Обновляем бренд, если он изменился
+        const [brandRows] = await db.pool.query('SELECT id_brand FROM brand WHERE name_brand = ?', [brandName]);
+        let brandId;
+        if (brandRows.length === 0) {
+            // Если бренд не существует, добавляем его
+            const [insertBrandResult] = await db.pool.query('INSERT INTO brand (name_brand) VALUES (?)', [brandName]);
+            brandId = insertBrandResult.insertId;
+        } else {
+            brandId = brandRows[0].id_brand;
+        }
+
+        // Обновляем подкатегорию, если она изменилась
+        const [subcategoryRows] = await db.pool.query('SELECT id_subcategory FROM subcategory WHERE name_subcategory = ?', [subcategoryName]);
+        let subcategoryId;
+        if (subcategoryRows.length === 0) {
+            // Если подкатегория не существует, добавляем ее
+            const [insertSubcategoryResult] = await db.pool.query('INSERT INTO subcategory (name_subcategory, id_category) VALUES (?, (SELECT id_category FROM category WHERE name_category = ?))', [subcategoryName, categoryName]);
+            subcategoryId = insertSubcategoryResult.insertId;
+        } else {
+            subcategoryId = subcategoryRows[0].id_subcategory;
+        }
+
+        // Обновляем информацию об устройстве
+        await db.pool.query('UPDATE device SET name_device = ?, desc_device = ?, id_brand = ?, id_subcategory = ? WHERE id_device = ?', [name, description, brandId, subcategoryId, id]);
+
+        // Обновляем изображения устройства
+        // Удаляем старые изображения
+        await db.pool.query('DELETE FROM device_images_device WHERE id_device = ?', [id]);
+        // Добавляем новые изображения
+        for (const image of images) {
+            const [insertImagesDeviceResult] = await db.pool.query('INSERT INTO images_device (link_images_device, id_type_images) VALUES (?, (SELECT id_type_images FROM type_images WHERE name_type = ?))', [image.link, image.type]);
+            const imagesDeviceId = insertImagesDeviceResult.insertId;
+            await db.pool.query('INSERT INTO device_images_device (id_device, id_images_device) VALUES (?, ?)', [id, imagesDeviceId]);
+        }
+
+        // Обновляем отзывы устройства
+        // Удаляем старые отзывы
+        await db.pool.query('DELETE FROM device_reviews WHERE id_device = ?', [id]);
+        // Добавляем новые отзывы
+        for (const review of reviews) {
+            const [insertReviewResult] = await db.pool.query('INSERT INTO reviews (text_review, rating) VALUES (?, ?)', [review.text, review.rating]);
+            const reviewId = insertReviewResult.insertId;
+            await db.pool.query('INSERT INTO device_reviews (id_device, id_review) VALUES (?, ?)', [id, reviewId]);
+        }
+
+        // Обновляем характеристики устройства
+        // Удаляем старые характеристики
+        await db.pool.query('DELETE FROM device_feature WHERE id_device = ?', [id]);
+        // Добавляем новые характеристики
+        for (const feature of features) {
+            const [insertFeatureResult] = await db.pool.query('INSERT INTO feature (name_feature, value_feature) VALUES (?, ?)', [feature.name, feature.value]);
+            const featureId = insertFeatureResult.insertId;
+            await db.pool.query('INSERT INTO device_feature (id_device, id_feature) VALUES (?, ?)', [id, featureId]);
+        }
+
+        // Обновляем цену устройства
+        // Удаляем старую цену
+        await db.pool.query('DELETE FROM device_price WHERE id_device = ?', [id]);
+        // Добавляем новую цену
+        const [insertDevicePriceResult] = await db.pool.query('INSERT INTO device_price (id_device, price) VALUES (?, ?)', [id, req.body.price]);
+
+        res.status(200).json({ message: 'Устройство успешно обновлено' });
+    } catch (err) {
+        console.error('Ошибка при обновлении устройства:', err);
+        res.status(500).json({ message: 'Произошла ошибка при обновлении устройства' });
+    }
+}
+
+async function deleteDevice(req, res) {
+    try {
+        const { id } = req.params;
+
+        // Проверяем, существует ли устройство
+        const [deviceRows] = await db.pool.query('SELECT * FROM device WHERE id_device = ?', [id]);
+        if (deviceRows.length === 0) {
+            return res.status(404).json({ message: 'Устройство не найдено' });
+        }
+
+        // Удаляем связанные с устройством данные
+        // Удаляем изображения устройства
+        await db.pool.query('DELETE FROM device_images_device WHERE id_device = ?', [id]);
+        await db.pool.query('DELETE FROM images_device WHERE id_images_device IN (SELECT id_images_device FROM device_images_device WHERE id_device = ?)', [id]);
+
+        // Удаляем отзывы устройства
+        await db.pool.query('DELETE FROM device_reviews WHERE id_device = ?', [id]);
+        await db.pool.query('DELETE FROM reviews WHERE id_review IN (SELECT id_review FROM device_reviews WHERE id_device = ?)', [id]);
+
+        // Удаляем характеристики устройства
+        await db.pool.query('DELETE FROM device_feature WHERE id_device = ?', [id]);
+        await db.pool.query('DELETE FROM feature WHERE id_feature IN (SELECT id_feature FROM device_feature WHERE id_device = ?)', [id]);
+
+        // Удаляем цену устройства
+        await db.pool.query('DELETE FROM device_price WHERE id_device = ?', [id]);
+
+        // Удаляем само устройство
+        await db.pool.query('DELETE FROM device WHERE id_device = ?', [id]);
+
+        res.status(200).json({ message: 'Устройство успешно удалено' });
+    } catch (err) {
+        console.error('Ошибка при удалении устройства:', err);
+        res.status(500).json({ message: 'Произошла ошибка при удалении устройства' });
+    }
+}
+
+async function getDevices(req, res) {
+    const { limit, page, brands, subcategories, category, sortField, sortOrder } = req.query;
+    try {
+        let query = `
+            SELECT
+                device.id_device AS id,
+                device.name_device AS name,
+                device.desc_device AS description,
+                brand.name_brand AS brand,
+                subcategory.name_subcategory AS subcategory,
+                category.name_category AS category,
+                images_device.link_images_device AS link_image,
+                price.id_price AS id_price,
+                price.price AS price
+            FROM california.device_images_device
+            JOIN california.device ON device_images_device.id_device = device.id_device
+            JOIN california.brand ON device.id_brand = brand.id_brand
+            JOIN california.subcategory ON device.id_subcategory = subcategory.id_subcategory
+            JOIN california.category ON subcategory.id_category = category.id_category
+            JOIN california.images_device ON device_images_device.id_images_device = images_device.id_images_device
+            JOIN california.type_images ON images_device.id_type_images = type_images.id_type_images
+            JOIN (
+                SELECT id_device, MIN(id_price) AS min_id_price
+                FROM california.device_price
+                GROUP BY id_device
+            ) AS min_prices ON device.id_device = min_prices.id_device
+            JOIN california.price ON min_prices.min_id_price = price.id_price
+            WHERE type_images.name_type = 'main'
+        `;
+
+        const params = [];
+
+        if (brands && Array.isArray(brands)) {
+            query += ' AND brand.name_brand IN (?)';
+            params.push(brands);
+        } else if (brands) {
+            query += ' AND brand.name_brand = ?';
+            params.push(brands);
+        }
+
+        if (subcategories && Array.isArray(subcategories)) {
+            query += ' AND subcategory.name_subcategory IN (?)';
+            params.push(subcategories);
+        } else if (subcategories) {
+            query += ' AND subcategory.name_subcategory = ?';
+            params.push(subcategories);
+        }
+
+        if (category) {
+            query += ' AND category.name_category = ?';
+            params.push(category);
+        }
+
+        if (sortField && sortOrder) {
+            query += ` ORDER BY ${sortField} ${sortOrder}`;
+        }
+
+        if (limit) {
+            query += ' LIMIT ?';
+            params.push(parseInt(limit));
+        }
+
+        if (page) {
+            const offset = (page - 1) * (limit || 10);
+            query += ' OFFSET ?';
+            params.push(offset);
+        }
+
+        const [rows] = await db.pool.query(query, params);
+
+        res.json(rows);
+    } catch (error) {
+        console.error('Ошибка при получении устройств:', error);
+        res.status(500).json({ message: 'Ошибка при получении устройств' });
+    }
+}
+
+module.exports = { 
+    getDevices,
+    createDevice,
+    updateDevice,
+    deleteDevice
+
+ };
+
+
+
+ //   // Добавляем изображения устройства
+//       // Добавляем изображения устройства
+//     //   / Обрабатываем загруженные файлы
+//     const images = [];
+//     if (!req.files || req.files.length === 0) {
+//       console.error('Не были загружены файлы изображений');
+//       return res.status(400).json({ message: 'Не были загружены файлы изображений' });
+//     }
+
+//     for (const file of req.files) {
+//       try {
+//         const imageFilename = `${Date.now()}-${path.basename(file.originalname)}`;
+//         const imagePath = path.join('uploads', imageFilename);
+
+//         // Создаем папку uploads, если она не существует
+//         await fs.promises.mkdir(path.join(__dirname, 'uploads'), { recursive: true });
+
+//         // Сохраняем изображение на сервере
+//         await fs.promises.writeFile(imagePath, file.buffer);
+//       } catch (err) {
+//         console.error('Не удалось сохранить изображение на сервере:', file.originalname, err);
+//         return res.status(500).json({ message: 'Не удалось сохранить изображение на сервере' });
+//       }
+
+//       const publicImageUrl = `${req.protocol}://${req.get('host')}/uploads/${imageFilename}`;
+//       images.push({ link: publicImageUrl, type: file.mimetype });
+//     }
+  
+//       // ... (остальной код)
+  
+//       /// Добавляем изображения устройства
+// for (const image of images) {
+//     const [typeRows] = await db.pool.query('SELECT id_type_images FROM type_images WHERE name_type = ?', [image.type]);
+//     if (typeRows.length === 0) {
+//       // Если тип изображения не найден, попробуйте добавить его
+//       const [insertTypeResult] = await db.pool.query('INSERT INTO type_images (name_type) VALUES (?)', [image.type]);
+//       const typeId = insertTypeResult.insertId;
+//     } else {
+//       const typeId = typeRows[0].id_type_images;
+//     }
+  
+//     const [insertImageResult] = await db.pool.query('INSERT INTO images_device (link_images_device, id_type_images) VALUES (?, ?)', [image.link, typeId]);
+//     if (insertImageResult.affectedRows === 0) {
+//       console.error('Не удалось добавить изображение в базу данных:', image.link);
+//       return res.status(500).json({ message: 'Не удалось добавить изображение' });
+//     }
+//     const imageId = insertImageResult.insertId;
+  
+//     const [insertDeviceImageResult] = await db.pool.query('INSERT INTO device_images_device (id_device, id_images_device) VALUES (?, ?)', [deviceId, imageId]);
+//     if (insertDeviceImageResult.affectedRows === 0) {
+//       console.error('Не удалось связать изображение с устройством:', image.link);
+//       return res.status(500).json({ message: 'Не удалось связать изображение с устройством' });
+//     }
+  
+//     console.log('Добавлено изображение:', image.link);
+//   }
+  
+
+
+
+
+
+
+    //     // Обрабатываем загрузку файлов
+    // const images = [];
+    // if (!req.files || req.files.length === 0) {
+    //   console.error('Не были загружены файлы изображений');
+    //   return res.status(400).json({ message: 'Не были загружены файлы изображений' });
+    // }
+
+    // for (const file of req.files) {
+    //   const imageFilename = `${Date.now()}-${path.basename(file.originalname)}`;
+    //   const imagePath = path.join('uploads', imageFilename);
+
+    //   // Создаем папку uploads, если она не существует
+    //   await fs.promises.mkdir(path.join(__dirname, 'uploads'), { recursive: true });
+
+    //   // Сохраняем изображение на сервере
+    //   await fs.promises.writeFile(imagePath, file.buffer);
+    //   if (!fs.existsSync(imagePath)) {
+    //     console.error('Не удалось сохранить изображение на сервере:', imagePath);
+    //     return res.status(500).json({ message: 'Не удалось сохранить изображение на сервере' });
+    //   }
+
+    //   const publicImageUrl = `${req.protocol}://${req.get('host')}/uploads/${imageFilename}`;
+    //   images.push({ link: publicImageUrl, type: file.mimetype });
+    // }
+    
