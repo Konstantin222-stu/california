@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+.desc{
+    font-family: "Montserrat", sans-serif;
+}
+
+.desc_vlg{
+    font-size: 24px;
+}
+.desc_bg{
+    font-size: 20px;
+}
+.desc_lg{
+    font-size: 17px;
+}
+.desc_lt{
+    font-size: 14px;
+}
+
+.sub{
+    font-size: 15px;
+    font-weight: 300;
+}
+.sub_md{
+    font-size: 13px;
+}
+.sub_purpule{
+    color: #3E356A;
+}
+
+.sub_white{
+    color: #fff;
+}
+.sub-orange{
+    color: #B64400;
+}

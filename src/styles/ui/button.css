@@ -1,0 +1,46 @@
+.button{
+    border-radius: 25px;
+}
+
+.button_bg{
+    padding: 14px 44px;
+    font-size: 19px;
+}
+.button_md{
+    padding: 12px 22px;
+}
+.button_sm{
+    padding: 9px 0;
+}
+
+.button_black{
+    background-color: #000;
+    color: #fff;
+}
+.button_purpule{
+    background: #3E356A;
+    color: #fff;
+}
+.button_purpule-border{
+    background-color: transparent;
+    border: 1px solid #D2CFE4;
+    color: #D2CFE4;
+}
+.mosaic-card_white .button_purpule-border{
+    border: 1px solid#3E356A;
+    color: #3E356A;
+}
+.button_white{
+    background: #fff;
+    color: #000;
+}
+.button_link-white{
+    color: #fff;
+    display: flex;
+    gap: 7px;
+    align-items: center;
+}
+.button_white-border-purpule{
+    border: 2px solid #D2CFE4;
+    color: #3E356A;
+}

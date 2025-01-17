@@ -1,0 +1,33 @@
+.popular{
+    padding-top: 75px;
+}
+.popular__content{}
+.popular__content> .title{
+    margin-bottom: 50px;
+    width: 80%;
+}
+.popular__cards{
+    display: flex;
+    gap: 23px;
+}
+.popular__card{
+    padding: 10px;
+    box-shadow: 2px 4px 12px 0px rgba(0, 0, 0, 16%);
+    width: 282px;
+    height: 385px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    border-radius: 10px;
+}
+
+.popular__card>span{
+    margin-top: 5px;
+     overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3; /* показывать не более 3 строк */
+    /* white-space: nowrap;  */
+    word-break: break-all;
+    height: 63px;
+}

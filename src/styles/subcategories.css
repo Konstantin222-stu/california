@@ -1,0 +1,18 @@
+.subcategories{padding-top: 75px;padding-bottom: 75px;}
+
+.subcategories__content{
+    display: flex;
+    justify-content: center;
+    gap: 27px;
+}
+.subcategorie{
+    width: 100px;
+    text-align: center;
+    padding: 20px;
+    transition: box-shadow 0.3s ease; 
+    border-radius: 10px;
+}
+
+.subcategorie:hover {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); 
+  }

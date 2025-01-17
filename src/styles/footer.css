@@ -1,0 +1,31 @@
+.footer{padding-top: 75px;}
+.footer__content{
+    display: flex;
+    color: #3E356A;
+    justify-content: space-between;
+}
+.footer__about{
+    width: 25%;
+}
+.footer__about img{
+    margin-bottom: 18px;
+
+}
+.footer__list{
+
+}
+.footer__list .title{
+    margin-bottom: 19px;
+}
+.footer__item:not(:last-child){
+    margin-bottom: 15px;
+}
+.copyright{padding-top: 75px;}
+.cooperite__content{
+    padding: 52px 0 52px 0;
+    border-top: 1px solid #DCE5E2;
+}
+.made-by, .made-by a{
+    display: flex;
+    gap: 5px;
+}

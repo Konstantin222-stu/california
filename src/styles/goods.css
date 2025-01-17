@@ -1,0 +1,10 @@
+.goods{padding-top: 57px;}
+.goods__content{}
+.goods__cards{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+}
+.goods__cards .popular__card{
+    border-radius: 18px;
+}

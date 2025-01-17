@@ -1,0 +1,16 @@
+
+.filter-top{
+    
+}
+.filter-top__content span{
+    display: flex;
+    
+}
+.filter-top__content{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 21px 0 21px 36px;
+    box-shadow: 4px 6px 21.899999618530273px 0px rgba(0, 0, 0, 25%);
+    border-radius: 10px;
+}

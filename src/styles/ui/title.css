@@ -1,0 +1,31 @@
+.title{}
+
+.title_lg{
+    font-size: 58px;
+}
+.title_vbg{
+    font-size: 60px;
+}
+.title_bg{
+    font-size: 45px;
+}
+.title_md{
+    font-size: 32px;
+}
+
+.title_sm{
+    font-size: 22px;
+}
+.title_lt{
+    font-size: 17px;
+}
+.title_center{
+    text-align: center;
+    margin: 0 auto;
+}
+.title_purpule{
+    color: #3E356A;
+}
+.title_white{
+    color: #fff;
+}

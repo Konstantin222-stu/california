@@ -1,0 +1,47 @@
+.formalization{
+    padding-top: 75px;
+}
+.formalization__content{
+    display: flex;
+    box-shadow: 0px 0px 18.700000762939453px 0px rgba(0, 0, 0, 25%);
+    padding: 34px 36px 41px 36px;
+    border-radius: 20px;
+    gap: 50px;
+}
+.formalization__content .details__content{
+    box-shadow: none;
+    border-radius: none;
+    padding: 0;
+}
+.formalization__content .details__content .details__container{
+    width: 100%;
+}
+.formalization__form> .title{
+    margin-bottom: 40px;
+}
+.formalization_ditails {
+    width: 100%;
+}
+.formalization__form form input{
+    width: 500px;
+    padding: 15px 0 15px 20px;
+    border-radius: 40px;
+    border: 1px solid #C5C5C5;
+    background-color: #F8F9FA;
+}
+.formalization__form form .desc{
+    margin-bottom: 12px;
+}
+.formalization__form form span:not(:last-child){
+    display: block;
+    margin-bottom: 20px;
+}
+.button_formalization{
+    margin-top: 60px;
+    display: block;
+    width: 200px;
+    text-align: center;
+}
+.formalization_ditails{
+
+}

@@ -1,0 +1,102 @@
+.taglines{padding-top: 75px;}
+.taglines__content{}
+.taglines__content > .title{
+    width: 80%;
+    margin-bottom: 50px;
+}
+.taglines__cards{
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(4,1fr);
+    grid-template-rows: repeat(1, 1fr) ;
+}
+.taglines__card-1,.taglines__card-2,.taglines__card-3,.taglines__card-4{
+    background-color: #000;
+    color: #fff;
+    border-radius: 32px;
+}
+.taglines__card-1{
+    grid-row: span 2 / 1;
+    grid-column: span 2;
+}
+.taglines__card-1 .taglines-card__img {
+    height: 75%;
+}
+.taglines__card-1 img{
+    margin-left: 30px;
+}
+.taglines__card-1 .taglines-card__info{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: 95%;
+    text-align: right;
+}
+.taglines__card-1 .title{
+    width: 40%;
+}
+.taglines__cards .sub{
+    margin-bottom: 5px;
+}
+.taglines__card-2{
+    grid-row: span 1;
+    grid-column: span 2;
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 46px;
+    align-items: center;
+}
+.taglines__card-3{
+    grid-row: span 3;
+    grid-column: span 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+}
+.taglines__card-3 .taglines-card__info{
+    width: 100%;
+    text-align: center;
+}
+.taglines__card-3 .title,.taglines__card-4 .title{
+    width: 100%;
+}
+.taglines__card-4{
+    grid-row: span 3;
+    grid-column: span 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 40px;
+}
+.taglines__card-1,
+.taglines__card-3 {
+  transition: transform 0.3s ease-in-out;
+}
+
+.taglines__card-2,
+.taglines__card-4 {
+  transition: transform 0.3s ease-in-out;
+}
+
+.taglines__card-1:hover {
+  transform: translateY(-40px);
+}
+
+.taglines__card-2:hover {
+  transform: translateY(40px);
+}
+
+.taglines__card-3:hover {
+  transform: translateY(-40px);
+}
+
+.taglines__card-4:hover {
+  transform: translateY(40px);
+}
+.taglines__card{}
+.taglines-card__info{}
+.taglines-card__img{}

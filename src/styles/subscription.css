@@ -1,0 +1,49 @@
+.subscription{padding-top: 75px;}
+.subscription__content{
+    display: flex;
+    background: #D2CFE4;
+    border-radius: 15px;
+    box-shadow: 10px 8px 29.200000762939453px 0px rgba(0, 0, 0, 25%);
+    padding: 110px 0 100px 115px;
+    box-sizing: border-box;
+}
+.subscription__info{
+    text-align: center;
+    width: 50%;
+}
+.subscription__info .title{
+    margin-bottom: 8px;
+}
+.subscription__info .desc{
+    margin-bottom: 81px;
+}
+.subscription__info form{
+    position: relative;
+    width: 100%;
+}
+.subscription__search{
+    border-radius: 54px 0 0 54px;
+    width: 285px;
+    padding: 16px 0 16px 32px;
+    border: none;
+}
+.subscription__button{
+    background: #000;
+    padding: 15.6px 16px;
+    color: #fff;
+    position: absolute;
+    top: 0;
+    border-radius: 0 200px 200px 0;
+    border: 1px solid #000;
+    right: 45px;
+}
+.subscription__img{
+    width: 50%;
+    position: relative;
+}
+.subscription__img img{
+    position: absolute;
+    top: -195px;
+    right: 36px;
+    width: 91%;
+}

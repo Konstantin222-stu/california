@@ -1,0 +1,48 @@
+.look{
+    padding-top: 75px;
+}
+.look__content{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+}
+.look__content .title{
+    margin-bottom: 50px;
+}
+.look__search{
+    display: flex;
+}
+.look__search input{
+    border: 1px solid #C5C5C5 ;
+    padding: 21px 0 22px 67px;
+    border-radius: 50px;
+    width: 650px;
+    display: block;
+}
+.look__search form{
+    position: relative;
+}
+.look__search img{
+    z-index: 1;
+    position: absolute;
+    left: 21px;
+    top: 15px;
+    width: 30px;
+    height: 29px;
+}
+.look__brands{
+    display: flex;
+    width: 70%;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 7px;
+}
+.look_brand{}
+.look__brand{
+    border-radius: 25px;
+    padding: 12px 22px;
+    border: 1px solid #C5C5C5;
+}
+
+

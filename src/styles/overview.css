@@ -1,0 +1,18 @@
+.overview{
+    padding-top: 75px;
+}
+.overview__content{
+    padding: 47px 73px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    box-shadow: 0px 0px 18.700000762939453px 0px rgba(0, 0, 0, 25%);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3; /* показывать не более 3 строк */
+    /* white-space: nowrap;  */
+    word-break: break-all;
+}
+.overview__content> .title{
+    margin-bottom: 30px;
+}
